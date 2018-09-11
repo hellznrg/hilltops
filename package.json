@@ -3,7 +3,8 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"start": "node ./bin/www"
+		"start": "node ./bin/www",
+		"test": "mocha"
 	},
 	"dependencies": {
 		"bluebird": "^3.5.1",
@@ -25,5 +26,10 @@
 		"sequelize-cli": "^4.0.0",
 		"serve-favicon": "^2.5.0",
 		"sqlite3": "^4.0.2"
+	},
+	"devDependencies": {
+		"chai": "^4.1.2",
+		"mocha": "^5.2.0",
+		"supertest": "^3.3.0"
 	}
 }

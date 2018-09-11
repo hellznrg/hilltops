@@ -42,7 +42,8 @@ router.post('/add', authentication.authenticateApi, function (req, res, next) {
 		Phone2: req.body.Phone2
 	}).then(x => {
 		res.send("Success fully added user.");
-	}).catch(function () {
+	}).catch(function (err) {
+		console.log(err);
 		res.status(400).send("Error");
 	});
 });
@@ -67,7 +68,7 @@ router.put('/edit/:id', authentication.authenticateApi, function (req, res, next
 		if (person.Phone2 != req.body.Phone2) person.Phone2 = req.body.Phone2;
 		person.save();
 	}).then(x => {
-		res.send("Record successfully updated.");
+		res.json("Record successfully updated.");
 	});
 });
 
@@ -91,7 +92,7 @@ router.post('/toggle_activation/:id', authentication.authenticateApi, function (
 	Person.findOne({
 		where: {ID: req.params.id}
 	}).then(person => {
-		person.Active = !person.Active
+		person.Active = !person.Active;
 		person.save();
 	}).then(x => {
 		res.send("Record successfully updated.");

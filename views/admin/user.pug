@@ -1,0 +1,266 @@
+extends ../layout
+
+block content
+	div User Management
+	hr
+	div(class='flex-container-vertical')
+		div(class='flex-container-vertical')
+			h2 Add user
+			div(class='flex-container-vertical')
+				div(class='flex-container-horizontal')
+					label(for='add_user_id') User ID
+					input(type='text', id='add_user_id')
+				div(class='flex-container-horizontal')
+					label(for='add_user_name') Name
+					input(type='text', id='add_user_name')
+				div(class='flex-container-horizontal')
+					label(for='add_user_pin') PIN
+					input(type='text', id='add_user_pin')
+				div(class='flex-container-horizontal')
+					label(for='add_user_admin') Admin
+					input(type='checkbox', id='add_user_admin')
+				div(class='flex-container-horizontal')
+					label(for='add_user_jobtitle') Job title
+					input(type='text', id='add_user_jobtitle')
+				div(class='flex-container-horizontal')
+					label(for='add_user_payrate') Pay rate
+					input(type='text', id='add_user_payrate')
+				div(class='flex-container-horizontal')
+					label(for='add_user_superrate') Super rate
+					input(type='text', id='add_user_superrate')
+				div(class='flex-container-horizontal')
+					label(for='add_user_bankname') Bank name
+					input(type='text', id='add_user_bankname')
+				div(class='flex-container-horizontal')
+					label(for='add_user_bankbsb') Bank BSB
+					input(type='text', id='add_user_bankbsb')
+				div(class='flex-container-horizontal')
+					label(for='add_user_bankaccountnumber') Bank account number
+					input(type='text', id='add_user_bankaccountnumber')
+				div(class='flex-container-horizontal')
+					label(for='add_user_phone1') Phone 1
+					input(type='text', id='add_user_phone1')
+				div(class='flex-container-horizontal')
+					label(for='add_user_phone2') Phone 2
+					input(type='text', id='add_user_phone2')
+				div(class='flex-container-horizontal')
+					label(for='add_user_active') Active
+					input(type='checkbox', id='add_user_active')
+				div(class='flex-container-horizontal')
+					button(onclick='addUser();') Add user
+					span(id='add_user_result')
+		hr
+		div(class='flex-container-vertical')
+			h2 Edit user
+			div(class='flex-container-horizontal')
+				label(for='edit_user_select') Select user
+				select(id='edit_user_select')
+					each person in persons
+						option(value=person.ID) #{person.Name}
+				button(onclick='editUser()') Edit selected user
+			div(class='flex-container-vertical', id='edit_user_edit_panel')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_id') User ID
+					input(type='text', id='edit_user_id')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_name') Name
+					input(type='text', id='edit_user_name')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_pin') PIN
+					input(type='text', id='edit_user_pin', value='')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_admin') Admin
+					input(type='checkbox', id='edit_user_admin')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_jobtitle') Job title
+					input(type='text', id='edit_user_jobtitle')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_payrate') Pay rate
+					input(type='text', id='edit_user_payrate')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_superrate') Super rate
+					input(type='text', id='edit_user_superrate')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_bankname') Bank name
+					input(type='text', id='edit_user_bankname')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_bankbsb') Bank BSB
+					input(type='text', id='edit_user_bankbsb')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_bankaccountnumber') Bank account number
+					input(type='text', id='edit_user_bankaccountnumber')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_phone1') Phone 1
+					input(type='text', id='edit_user_phone1')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_phone2') Phone 2
+					input(type='text', id='edit_user_phone2')
+				div(class='flex-container-horizontal')
+					label(for='edit_user_active') Active
+					input(type='checkbox', id='edit_user_active')
+				div(class='flex-container-horizontal')
+					button(onclick='editUserSaveChanges();') Save changes
+					button(onclick='editUserCancelChanges();') Cancel
+					span(id='edit_user_result')
+		hr
+		div(class='flex-container-vertical')
+			h2 Activate/deactivate user
+			div(class='flex-container-horizontal')
+				label(for='activation_user_select') Select user
+				select(id='activation_user_select')
+					each person in persons
+						option(value=person.ID) #{person.Name} (Active: #{person.Active})
+				label(for='activation_confirm') Confirm
+				input(type='checkbox', id='activation_confirm')
+				button(onclick='toggleActivation()') Toggle activation
+		hr
+		div(class='flex-container-vertical')
+			h2 Remove user
+			div(class='flex-container-horizontal')
+				label(for='remove_user_select') Select user
+				select(id='remove_user_select')
+					each person in persons
+						option(value=person.ID) #{person.Name}
+				label(for='remove_confirm') Confirm
+				input(type='checkbox', id='remove_confirm')
+				button(onclick='removeUser()') Remove selected user
+				span(id='remove_user_result')
+	hr
+	include ../includes/nav
+	script(type='text/javascript').
+		$(document).ready(function () {
+			$("#edit_user_edit_panel").css("display", "none");
+		});
+
+		function editUser() {
+			var id = $("#edit_user_select").val();
+			$.ajax({
+				method: "GET",
+				url: '/admin/user/' + id,
+			}).done(function (data) {
+				$("#edit_user_id").val(data.ID);
+				$("#edit_user_name").val(data.Name);
+				if (data.Active) $("#edit_user_active").attr("checked", "checked"); else $("#edit_user_active").removeAttr("checked");
+				if (data.Admin) $("#edit_user_admin").attr("checked", "checked"); else $("#edit_user_admin").removeAttr("checked");
+				$("#edit_user_pin").val(data.Passcode);
+				$("#edit_user_jobtitle").val(data.JobTitle);
+				$("#edit_user_payrate").val(data.PayRate);
+				$("#edit_user_superrate").val(data.SuperRate);
+				$("#edit_user_bankname").val(data.BankName);
+				$("#edit_user_bankbsb").val(data.BankBsb);
+				$("#edit_user_bankaccountnumber").val(data.BankAccountNumber);
+				$("#edit_user_phone1").val(data.Phone1);
+				$("#edit_user_phone2").val(data.Phone2);
+			}).fail(function () {
+
+			});
+			$("#edit_user_edit_panel").css("display", "block");
+		}
+
+		function editUserSaveChanges() {
+			var id = $("#edit_user_select").val();
+			var name = $("#edit_user_name").val();
+			var pin = $("#edit_user_pin").val();
+			var admin = $("#edit_user_admin").is(":checked") ? true : false;
+			var active = $("#edit_user_active").is(":checked") ? true : false;
+			var jobtitle = $("#edit_user_jobtitle").val();
+			var payrate = $("#edit_user_payrate").val();
+			var superrate = $("#edit_user_superrate").val();
+			var bankname = $("#edit_user_bankname").val();
+			var bankbsb = $("#edit_user_bankbsb").val();
+			var bankaccountnumber = $("#edit_user_bankaccountnumber").val();
+			var phone1 = $("#edit_user_phone1").val();
+			var phone2 = $("#edit_user_phone2").val();
+
+			$.ajax({
+				type: "PUT",
+				url: '/admin/user/edit/' + id,
+				data: {
+					ID: id, Name: name, PIN: pin, Admin: admin, Active: active, JobTitle: jobtitle,
+					PayRate: payrate, SuperRate: superrate, BankName: bankname, BankBsb: bankbsb,
+					BankAccountNumber: bankaccountnumber, Phone1: phone1, Phone2: phone2
+				},
+			}).done(function (data) {
+				$("#edit_user_result").text("Success");
+				location.reload();
+			}).fail(function () {
+				$("#edit_user_result").text("Failed");
+			}).always(function () {
+				$("#edit_user_select").val("");
+				$("#edit_user_name").val("");
+				$("#edit_user_pin").val("");
+				$("#edit_user_active").removeAttr("checked");
+				$("#edit_user_admin").removeAttr("checked");
+				$("#edit_user_jobtitle").val("");
+				$("#edit_user_payrate").val("");
+				$("#edit_user_superrate").val("");
+				$("#edit_user_bankname").val("");
+				$("#edit_user_bankbsb").val("");
+				$("#edit_user_bankaccountnumber").val("");
+				$("#edit_user_phone1").val("");
+				$("#edit_user_phone2").val("");
+			});
+		}
+
+		function editUserCancelChanges() {
+			$("#edit_user_edit_panel").css("display", "none");
+		}
+
+		function addUser() {
+			var id = parseInt($("#add_user_id").val());
+			var name = $("#add_user_name").val();
+			var pin = parseInt($("#add_user_pin").val());
+			var admin = $("#add_user_admin").is(":checked") ? true : false;
+			var active = $("#add_user_active").is(":checked") ? true : false;
+			var jobtitle = $("#add_user_jobtitle").val();
+			var payrate = $("#add_user_payrate").val();
+			var superrate = $("#add_user_superrate").val();
+			var bankname = $("#add_user_bankname").val();
+			var bankbsb = $("#add_user_bankbsb").val();
+			var bankaccountnumber = $("#add_user_bankaccountnumber").val();
+			var phone1 = $("#add_user_phone1").val();
+			var phone2 = $("#add_user_phone2").val();
+
+			$.ajax({
+				type: "POST",
+				url: '/admin/user/add',
+				data: {
+					ID: id, Name: name, PIN: pin, Admin: admin, Active: active,
+					JobTitle: jobtitle, PayRate: payrate, SuperRate: superrate, BankName: bankname,
+					BankBsb: bankbsb, BankAccountNumber: bankaccountnumber, Phone1: phone1, Phone2: phone2
+				},
+			}).done(function (data) {
+				$("#add_user_result").text("Success");
+				location.reload();
+			}).fail(function (error) {
+				$("#add_user_result").text(error);
+			});
+		}
+
+		function toggleActivation() {
+			if ($("#activation_confirm").prop("checked") == true) {
+				$.ajax({
+					type: "POST",
+					url: '/admin/user/toggle_activation/' + $("#activation_user_select").val(),
+				}).done(function () {
+					$("#activation_user_result").text("Success");
+					location.reload();
+				}).fail(function () {
+					$("#activation_user_result").text("Failed");
+				});
+			}
+		}
+
+		function removeUser() {
+			if ($("#remove_confirm").prop("checked") == true) {
+				$.ajax({
+					type: "DELETE",
+					url: '/admin/user/remove/' + $("#remove_user_select").val(),
+				}).done(function () {
+					$("#remove_user_result").text("Success");
+					location.reload();
+				}).fail(function () {
+					$("#remove_user_result").text("Failed");
+				});
+			}
+		}

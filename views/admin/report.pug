@@ -1,0 +1,157 @@
+extends ../layout
+
+block content
+	h1 Reports
+	h2 Flock production
+	div(id="chart_flock_daily_production")
+
+	h2(style="page-break-before: always;") Flock production per hen
+	div(id="chart_flock_daily_production_per_hen")
+
+	h2(style="page-break-before: always;") Flock production
+	div(id="chart_flock_weekly_production")
+
+	h2(style="page-break-before: always;") Flock production per hen
+	div(id="chart_flock_weekly_production_per_hen")
+
+	h2(style="page-break-before: always;") Packaged production
+	div(id="chart_packaged_production")
+
+	h2(style="page-break-before: always;") Cracked eggs
+	div(id="chart_cracked_eggs")
+
+	h2(style="page-break-before: always;") Mortality
+	div(id="chart_mortality")
+
+	script(type="text/javascript").
+		google.charts.load('current', {'packages': ['corechart']});
+		google.charts.setOnLoadCallback(LoadCharts);
+		var chart_width = "700px";
+		var chart_height = "400px";
+
+		function LoadCharts() {
+			LoadChartFlockDailyProduction();
+			LoadChartFlockDailyProductionPerHen();
+			LoadChartFlockWeeklyProduction();
+			LoadChartFlockWeeklyProductionPerHen();
+			LoadChartPackedProduction();
+			LoadChartCrackedEggs();
+			LoadChartMortality();
+		}
+
+		function LoadChartFlockDailyProduction() {
+			$.get("/admin/report/FlockDailyProduction", function (data) {
+				data = google.visualization.arrayToDataTable(data);
+				let options = {
+					width: 1100,
+					height: 600,
+					chartArea: {width: '85%', height: '70%'},
+					title: "Flock daily production",
+					legend: {position: 'bottom'},
+					axisTitlesPosition: "in",
+				}
+				let chart = new google.visualization.LineChart($("#chart_flock_daily_production")[0]);
+				chart.draw(data, options);
+			});
+		}
+
+		function LoadChartFlockDailyProductionPerHen() {
+			$.get("/admin/report/FlockDailyProductionPerHen", function (data) {
+				data = google.visualization.arrayToDataTable(data);
+				let options = {
+					width: 1100,
+					height: 600,
+					chartArea: {width: '85%', height: '70%'},
+					title: "Flock daily production per hen",
+					legend: {position: 'bottom'},
+					axisTitlesPosition: "in",
+				}
+				let chart = new google.visualization.LineChart($("#chart_flock_daily_production_per_hen")[0]);
+				chart.draw(data, options);
+			});
+		}
+
+		function LoadChartFlockWeeklyProduction() {
+			$.get("/admin/report/FlockWeeklyProduction", function (data) {
+				data = google.visualization.arrayToDataTable(data);
+				let options = {
+					width: 1100,
+					height: 600,
+					chartArea: {width: '85%', height: '70%'},
+					title: "Flock weekly production",
+					legend: {position: 'bottom'},
+					axisTitlesPosition: "in",
+				}
+				let chart = new google.visualization.LineChart($("#chart_flock_weekly_production")[0]);
+				chart.draw(data, options);
+			});
+		}
+
+		function LoadChartFlockWeeklyProductionPerHen() {
+			$.get("/admin/report/FlockWeeklyProductionPerHen", function (data) {
+				data = google.visualization.arrayToDataTable(data);
+				let options = {
+					width: 1100,
+					height: 600,
+					chartArea: {width: '85%', height: '70%'},
+					title: "Flock weekly production per hen",
+					legend: {position: 'bottom'},
+					axisTitlesPosition: "in",
+				}
+				let chart = new google.visualization.LineChart($("#chart_flock_weekly_production_per_hen")[0]);
+				chart.draw(data, options);
+			});
+		}
+
+		function LoadChartPackedProduction() {
+			$.get("/admin/report/PackedProduction", function (data) {
+				data = google.visualization.arrayToDataTable(data);
+				let options = {
+					width: 1100,
+					height: 600,
+					chartArea: {width: '85%', height: '70%'},
+					title: "Packed eggs",
+					legend: {
+						position: 'top',
+						maxLines: 6
+					},
+					axisTitlesPosition: "in",
+					isStacked: true,
+				}
+				let chart = new google.visualization.ColumnChart($("#chart_packaged_production")[0]);
+				chart.draw(data, options);
+			});
+		}
+
+		function LoadChartCrackedEggs() {
+			$.get("/admin/report/CrackedEggs", function (data) {
+				data = google.visualization.arrayToDataTable(data);
+				let options = {
+					width: 1100,
+					height: 600,
+					chartArea: {width: '85%', height: '70%'},
+					title: "Cracked eggs",
+					legend: {position: 'bottom'},
+					axisTitlesPosition: "in",
+					isStacked: true
+				}
+				let chart = new google.visualization.ColumnChart($("#chart_cracked_eggs")[0]);
+				chart.draw(data, options);
+			});
+		}
+
+		function LoadChartMortality() {
+			$.get("/admin/report/FlockMortality", function (data) {
+				data = google.visualization.arrayToDataTable(data);
+				let options = {
+					width: 1100,
+					height: 600,
+					chartArea: {width: '85%', height: '70%'},
+					title: "Mortality",
+					legend: {position: 'bottom'},
+					axisTitlesPosition: "in",
+				}
+				let chart = new google.visualization.LineChart($("#chart_mortality")[0]);
+				chart.draw(data, options);
+			});
+		}

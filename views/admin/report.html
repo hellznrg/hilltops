@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head><title></title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<script src="/scripts/jquery/jquery.js"></script>
+	<link rel="stylesheet" href="/scripts/chartist/chartist.css">
+	<script src="/scripts/chartist/chartist.js"></script>
+	<script src="/scripts/chartist-plugin-axistitle/chartist-plugin-axistitle.js"></script>
+	<script src="/scripts/chartist-plugin-legend/chartist-plugin-legend.js"></script>
+</head>
+<body>
+<div style="font-size: 4vmin;">Hilltops Egg Farm Operations</div>
+<div id="flash-message"></div>
+<h1>Reports</h1>
+<h2>Flock production</h2>
+<h3>Flock 3</h3>
+<div class="ct-chart" id="chart_flock_production_3"></div>
+<h3>Flock 4</h3>
+<div class="ct-chart" id="chart_flock_production_4"></div>
+<h3>Flock 5</h3>
+<div class="ct-chart" id="chart_flock_production_5"></div>
+<h2>Cracked eggs</h2>
+<h3>Flock 3</h3>
+<div class="ct-chart" id="chart_cracked_eggs_3"></div>
+<h3>Flock 4</h3>
+<div class="ct-chart" id="chart_cracked_eggs_4"></div>
+<h3>Flock 5</h3>
+<div class="ct-chart" id="chart_cracked_eggs_5"></div>
+<h2>Total production</h2>
+<div class="ct-chart" id="chart_total_production"></div>
+<h2>Boxes per day</h2>
+<p>Y-axis shows the day of year. Data shown is for the last 30 days.</p>
+<div class="ct-chart" id="chart_boxes_per_day"></div>
+<h2>Mortality</h2>
+<div class="ct-chart" id="chart_mortality"></div>
+<script type="text/javascript">window.onload = LoadCharts;
+
+function LoadCharts() {
+	LoadChartFlockProduction(3);
+	LoadChartFlockProduction(4);
+	LoadChartFlockProduction(5);
+	LoadChartCrackedEggs(3);
+	LoadChartCrackedEggs(4);
+	LoadChartCrackedEggs(5);
+	LoadChartTotalProduction();
+	LoadChartBoxesPerDay();
+	LoadChartMortality();
+}
+
+function LoadChartFlockProduction(flock_number) {
+	$.get("/admin/report/FlockProduction/" + flock_number, function (data) {
+		new Chartist.Line("#chart_flock_production_" + flock_number, data, {
+			axisX: {
+				type: Chartist.AutoScaleAxis,
+				onlyInteger: true
+			},
+			width: "400px",
+			height: "400px"
+		});
+	});
+}
+
+function LoadChartCrackedEggs(flock_number) {
+	$.get("/admin/report/CrackedEggs/" + flock_number, function (data) {
+		new Chartist.Line("#chart_cracked_eggs_" + flock_number, data, {
+			axisX: {
+				type: Chartist.AutoScaleAxis,
+				onlyInteger: true
+			},
+			width: "400px",
+			height: "400px"
+		});
+	});
+}
+
+function LoadChartTotalProduction() {
+	$.get("/admin/report/TotalProduction", function (data) {
+		new Chartist.Line("#chart_total_production", data, {
+			axisX: {
+				type: Chartist.AutoScaleAxis,
+				onlyInteger: true
+			},
+			width: "400px",
+			height: "400px"
+		});
+	});
+}
+
+function LoadChartBoxesPerDay() {
+	$.get("/admin/report/BoxesPerDay", function (data) {
+		new Chartist.Line("#chart_boxes_per_day", data, {
+			axisX: {
+				type: Chartist.AutoScaleAxis,
+				onlyInteger: true
+			},
+			axisY: {
+				low: 0,
+				onlyInteger: true
+			},
+			width: "400px",
+			height: "400px",
+		});
+	});
+}
+
+function LoadChartMortality() {
+	$.get("/admin/report/Mortality", function (data) {
+		new Chartist.Line("#chart_mortality", data, {
+			axisX: {
+				type: Chartist.AutoScaleAxis,
+			},
+			axisY: {
+				low: 0,
+				onlyInteger: true
+			},
+			width: "400px",
+			height: "400px",
+		});
+	});
+}</script>
+<script type="text/javascript">function showFlashMessage(message) {
+	$("#flash-message").text(message);
+	window.setTimeout(hideFlashMessage, 5000);
+	$("#flash-message").css("display", "block");
+}
+
+function hideFlashMessage() {
+	$("#flash-message").text("");
+	$("#flash-message").css("display", "none");
+}
+
+function authenticationTimeout() {
+	$.get('/security/ping')
+		.done(function () {
+			//still authenticated
+		})
+		.fail(function () {
+			window.location.assign("/security/login");
+		});
+	window.setTimeout(authenticationTimeout, 185000);
+}
+
+$(document).ready(function () {
+	window.setTimeout(authenticationTimeout, 185000);
+});</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+extends ../layout
+
+block content
+	div Completed tasks
+	hr
+	table(class="with-border")
+		tr
+			th Worker ID
+			th Worker name
+			th Job title
+			th Task name
+			th Date completed
+			th Clock in
+			th Completed at
+			th Clock out
+			th(colspan="999") Data
+		each row in CompletedTasks
+			tr
+				td #{row.WorkerID}
+				td #{row.WorkerName}
+				td #{row.JobTitle}
+				td #{row.TaskName}
+				td #{row.Date}
+				td #{row.ClockIn}
+				td #{row.CompletedAt}
+				td #{row.ClockOut}
+				each td in row.TaskData
+					td #{td.TaskDataFieldName}
+					td #{td.TaskDataFieldValue}
+	div(class='flex-container-horizontal')
+		button(onclick='csv();', class='menu_button') Download as CSV
+	hr
+	include ../includes/nav
+	script(type='text/javascript').
+		function csv() {
+			window.location.href = '/admin/completed_task/csv';
+		}

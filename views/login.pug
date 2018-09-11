@@ -1,0 +1,63 @@
+extends layout
+
+block content
+	div(class='flex-container-horizontal')
+		div(class='flex-container-vertical login_right_side')
+			div(class='flex-container-vertical', style='font-size: 8vmin;') Login
+			div(class='flex-container-vertical', id='status', style='font-size: 5vmin;') You can sign in now.
+			hr
+			div(class='flex-container-vertical')
+				label(for='worker_id', class='login_input') ID #
+				input(type='text', id='worker_id', onclick='activate_input(INPUT_FIELD_ID);', class='login_input', maxlength=8)
+			div(class='flex-container-vertical')
+				label(for='passcode', class='login_input') Passcode
+				input(type='password', id='passcode', onclick='activate_input(INPUT_FIELD_PASSCODE);', class='login_input', maxlength=8)
+		include includes/keypad.pug
+	script(type='text/javascript').
+		const INPUT_FIELD_ID = 1;
+		const INPUT_FIELD_PASSCODE = 2;
+
+		var active_input = $("#worker_id");
+
+		activate_input(INPUT_FIELD_ID);
+
+		function keypad(button) {
+			active_input.val(active_input.val() + button);
+		};
+
+		function clear_input() {
+			$("#worker_id").val("");
+			$("#passcode").val("");
+			activate_input(INPUT_FIELD_ID);
+		};
+
+		function ok() {
+			var id = $("#worker_id").val();
+			var passcode = $("#passcode").val();
+			$.post({
+				url: "/security/login/" + id,
+				data: {Passcode: parseInt(passcode)},
+				success: function (data, textstatus, jqxhr) {
+					$("#status").text("Login successful.");
+					window.location.href = data.Redirect;
+				},
+				error: function (jqxhr, textstatus, errorthrown) {
+					$("#status").text("Login failed.");
+					activate_input(INPUT_FIELD_ID);
+				}
+			});
+			clear_input();
+		};
+
+		function activate_input(input_field) {
+			active_input.css("background-color", "");
+			switch (input_field) {
+				case INPUT_FIELD_ID:
+					active_input = $("#worker_id");
+					break;
+				case INPUT_FIELD_PASSCODE:
+					active_input = $("#passcode");
+					break;
+			}
+			active_input.css("background-color", "#FFFF00");
+		}

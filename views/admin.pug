@@ -1,0 +1,39 @@
+extends layout
+
+block content
+	div Admin menu
+	div(class='flex-container-horizontal')
+		button(onclick='timesheets();', class='menu_button') Timesheets
+		button(onclick='completedTasks();', class='menu_button') Completed tasks
+		button(onclick='reports();', class='menu_button') Reports
+	div(class='flex-container-horizontal')
+		button(onclick='users();', class='menu_button') Users
+		button(onclick='tasks();', class='menu_button') Tasks
+	div(class='flex-container-horizontal')
+		button(onclick='db();', class='menu_button') Database operations
+	hr
+	include includes/nav
+	script(type='text/javascript').
+		function users() {
+			window.location.href = '/admin/user';
+		}
+
+		function tasks() {
+			window.location.href = '/admin/task';
+		}
+
+		function timesheets() {
+			window.location.href = '/admin/timesheet';
+		}
+
+		function completedTasks() {
+			window.location.href = '/admin/completed_task';
+		}
+
+		function reports() {
+			window.open("/admin/report", "_blank");
+		}
+
+		function db() {
+			window.location.href = '/admin/db';
+		}

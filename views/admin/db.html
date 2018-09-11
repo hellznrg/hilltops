@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head><title></title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<script src="/scripts/jquery/jquery.js"></script>
+	<link rel="stylesheet" href="/scripts/chartist/chartist.css">
+	<script src="/scripts/chartist/chartist.js"></script>
+	<script src="/scripts/chartist-plugin-axistitle/chartist-plugin-axistitle.js"></script>
+	<script src="/scripts/chartist-plugin-legend/chartist-plugin-legend.js"></script>
+</head>
+<body>
+<div style="font-size: 4vmin;">Hilltops Egg Farm Operations</div>
+<div id="flash-message"></div>
+<div>Database operations</div>
+<hr>
+<div class="flex-container-horizontal">
+	<button class="menu_button" onclick="reset_db();">Reset database</button>
+	<div class="flex-container-vertical">
+		<div class="flex-container-horizontal"><input type="checkbox" id="clear_workers"><label for="clear_workers">Clear
+			worker database (WARNING! This will clear all worker information and create ONE default admin account!!! After
+			using this operation, you will have to log in with ID:9001 and PIN:1009. You should then change your PIN at the
+			earliest convenience.)</label></div>
+		<div class="flex-container-horizontal"><input type="checkbox" id="clear_registrations"><label
+			for="clear_registrations">Clear clock-in/clock-out data</label></div>
+		<div class="flex-container-horizontal"><input type="checkbox" id="clear_taskassignments"><label
+			for="clear_taskassignments">Clear task assignments</label></div>
+		<div class="flex-container-horizontal"><input type="checkbox" id="clear_tasks"><label for="clear_tasks">Clear task
+			definitions</label></div>
+		<div class="flex-container-horizontal"><input type="checkbox" id="clear_taskcompletions"><label
+			for="clear_taskcompletions">Clear task completion information</label></div>
+		<div class="flex-container-horizontal"><input type="checkbox" id="clear_taskschedules"><label
+			for="clear_taskschedules">Clear task schedules</label></div>
+		<div class="flex-container-horizontal"><input type="checkbox" id="db_operations_confirm"><label
+			for="db_operations_confirm">Confirm database operations</label></div>
+	</div>
+</div>
+<hr>
+<div class="flex-container-horizontal">
+	<button class="menu_button" onclick="mainMenu();">Main menu</button>
+	<button class="menu_button" onclick="logout();">Logout</button>
+</div>
+<script type="text/javascript">function logout() {
+	window.location.href = "/security/login";
+}</script>
+<script type="text/javascript">function mainMenu() {
+	window.location.href = '/index';
+}</script>
+<script type="text/javascript">$(window).on('load', function () {
+	$("#clear_workers").change(function () {
+		if ($("#clear_workers").prop("checked") === true) {
+			$("#clear_registrations").prop("checked", true);
+			$("#clear_taskcompletions").prop("checked", true);
+			$("#clear_taskassignments").prop("checked", true);
+		}
+	});
+
+	$("#clear_registrations").change(function () {
+		if ($("#clear_registrations").prop("checked") === true) {
+			$("#clear_taskcompletions").prop("checked", true);
+		} else {
+			$("#clear_workers").prop("checked", false);
+		}
+	});
+
+	$("#clear_tasks").change(function () {
+		if ($("#clear_tasks").prop("checked") === true) {
+			$("#clear_taskcompletions").prop("checked", true);
+			$("#clear_taskschedules").prop("checked", true);
+			$("#clear_taskassignments").prop("checked", true);
+		}
+	});
+
+	$("#clear_taskassignments").change(function () {
+		if ($("#clear_taskassignments").prop("checked") === false) {
+			$("#clear_workers").prop("checked", false);
+			$("#clear_tasks").prop("checked", false);
+		}
+	});
+
+	$("#clear_taskcompletions").change(function () {
+		if ($("#clear_taskcompletions").prop("checked") === false) {
+			$("#clear_tasks").prop("checked", false);
+			$("#clear_registrations").prop("checked", false);
+			$("#clear_workers").prop("checked", false);
+		}
+	});
+
+	$("#clear_taskschedules").change(function () {
+		if ($("#clear_taskschedules").prop("checked") === false) {
+			$("#clear_tasks").prop("checked", false);
+		}
+	});
+});
+
+function reset_db() {
+	if ($("#db_operations_confirm").prop("checked") === true) {
+		$.post('/admin/db/reset', {
+			clear_workers: $("#clear_workers").prop("checked"),
+			clear_registrations: $("#clear_registrations").prop("checked"),
+			clear_taskcompletions: $("#clear_taskcompletions").prop("checked"),
+			clear_taskassignments: $("#clear_taskassignments").prop("checked"),
+			clear_tasks: $("#clear_tasks").prop("checked"),
+			clear_taskschedules: $("#clear_taskschedules").prop("checked"),
+		})
+			.done(function () {
+				showFlashMessage("Database successfully reset.");
+			}).fail(function () {
+			showFlashMessage("An error occurred.");
+		});
+	}
+}</script>
+<script type="text/javascript">function showFlashMessage(message) {
+	$("#flash-message").text(message);
+	window.setTimeout(hideFlashMessage, 5000);
+	$("#flash-message").css("display", "block");
+}
+
+function hideFlashMessage() {
+	$("#flash-message").text("");
+	$("#flash-message").css("display", "none");
+}
+
+function authenticationTimeout() {
+	$.get('/security/ping')
+		.done(function () {
+			//still authenticated
+		})
+		.fail(function () {
+			window.location.assign("/security/login");
+		});
+	window.setTimeout(authenticationTimeout, 185000);
+}
+
+$(document).ready(function () {
+	window.setTimeout(authenticationTimeout, 185000);
+});</script>
+</body>
+</html>

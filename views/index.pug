@@ -1,0 +1,52 @@
+extends layout
+
+block content
+	div Main menu
+	div(class='flex-container-vertical')
+		div(class='flex-container-horizontal')
+			p(id='status')
+		div(class='flex-container-horizontal')
+			button(onclick='clockIn();', class='menu_button') Clock-in
+			button(onclick='clockOut();', class='menu_button') Clock-out
+			button(onclick='tasks();', class='menu_button') Tasks
+		div(class='flex-container-horizontal')
+			button(onclick='changePin();', class='menu_button') Change passcode
+	hr
+	include includes/nav
+	script(type='text/javascript').
+		updateStatus();
+
+		function clockIn() {
+			$.post(
+				"/register/signin",
+				null,
+				function (data, textStatus, jqXhr) {
+					updateStatus();
+				}
+			);
+		}
+
+		function clockOut() {
+			$.post(
+				"/register/signout",
+				null,
+				function (data, textStatus, jqXhr) {
+					updateStatus();
+				}
+			);
+		}
+
+		function tasks() {
+			window.location.href = "/task";
+		}
+
+		function changePin() {
+			window.location.href = "/security/changePin";
+		}
+
+		function updateStatus() {
+			var status = $("#status");
+			$.get("/index/status", null, function (data, textStatus, jqXhr) {
+				status.text(data.status);
+			});
+		}

@@ -1,0 +1,20 @@
+div(class='flex-container-horizontal')
+	unless indexPage
+		button(onclick='mainMenu();', class='menu_button') Main menu
+	if admin
+		button(onclick='admin();', class='menu_button') Admin menu
+	button(onclick='logout();', class='menu_button') Logout
+script(type='text/javascript').
+	function logout() {
+		window.location.href = "/security/login";
+	}
+unless indexPage
+	script(type='text/javascript').
+		function mainMenu() {
+			window.location.href = '/index';
+		}
+if admin
+	script(type='text/javascript').
+		function admin() {
+			window.location.href = "/admin";
+		}

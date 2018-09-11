@@ -1,0 +1,69 @@
+extends layout
+
+block content
+	div(class='flex-container-horizontal')
+		div(class='flex-container-vertical change_passcode_right_side')
+			div(class='flex-container-vertical', style='font-size: 5vmin;') Change PIN
+			div(class='flex-container-vertical', id='status', style='font-size: 4vmin;') Ready.
+			hr
+			div(class='flex-container-vertical')
+				label(for='worker_id', class='change_pin_input') ID #
+				input(type='text', id='worker_id', onclick='activate_input(INPUT_FIELD_ID);', class='change_pin_input', maxlength=8)
+			div(class='flex-container-vertical')
+				label(for='old_pin', class='change_pin_input') Old PIN
+				input(type='password', id='old_pin', onclick='activate_input(INPUT_FIELD_OLD_PIN);', class='change_pin_input', maxlength=8)
+			div(class='flex-container-vertical')
+				label(for='new_pin', class='change_pin_input') New PIN
+				input(type='password', id='new_pin', onclick='activate_input(INPUT_FIELD_NEW_PIN);', class='change_pin_input', maxlength=8)
+			div(class)
+		include includes/keypad.pug
+	script(type='text/javascript').
+		const INPUT_FIELD_ID = 1;
+		const INPUT_FIELD_OLD_PIN = 2;
+		const INPUT_FIELD_NEW_PIN = 3;
+
+		var active_input = $("#worker_id");
+
+		activate_input(INPUT_FIELD_ID);
+
+		function keypad(button) {
+			active_input.val(active_input.val() + button);
+		};
+
+		function clear_input() {
+			window.location.href = "/"
+		};
+
+		function ok() {
+			var id = $("#worker_id").val();
+			var old_pin = $("#old_pin").val();
+			var new_pin = $("#new_pin").val();
+			$.post({
+				url: "/security/changePin/" + id,
+				data: {OldPin: parseInt(old_pin), NewPin: parseInt(new_pin)},
+				success: function (data, textstatus, jqxhr) {
+					$("#status").text("Changed PIN.");
+					window.location.href = data.Redirect;
+				},
+				error: function (jqxhr, textstatus, errorthrown) {
+					$("#status").text("Try again.");
+				}
+			});
+			clear_input();
+		};
+
+		function activate_input(input_field) {
+			active_input.css("background-color", "");
+			switch (input_field) {
+				case INPUT_FIELD_ID:
+					active_input = $("#worker_id");
+					break;
+				case INPUT_FIELD_OLD_PIN:
+					active_input = $("#old_pin");
+					break;
+				case INPUT_FIELD_NEW_PIN:
+					active_input = $("#new_pin");
+					break;
+			}
+			active_input.css("background-color", "#FFFF00");
+		}

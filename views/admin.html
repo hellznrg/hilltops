@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head><title></title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<script src="/scripts/jquery/jquery.js"></script>
+	<link rel="stylesheet" href="/scripts/chartist/chartist.css">
+	<script src="/scripts/chartist/chartist.js"></script>
+	<script src="/scripts/chartist-plugin-axistitle/chartist-plugin-axistitle.js"></script>
+	<script src="/scripts/chartist-plugin-legend/chartist-plugin-legend.js"></script>
+</head>
+<body>
+<div style="font-size: 4vmin;">Hilltops Egg Farm Operations</div>
+<div id="flash-message"></div>
+<div>Admin menu</div>
+<div class="flex-container-horizontal">
+	<button class="menu_button" onclick="timesheets();">Timesheets</button>
+	<button class="menu_button" onclick="completedTasks();">Completed tasks</button>
+</div>
+<div class="flex-container-horizontal">
+	<button class="menu_button" onclick="users();">Users</button>
+	<button class="menu_button" onclick="tasks();">Tasks</button>
+</div>
+<div class="flex-container-horizontal">
+	<button class="menu_button" onclick="db();">Database operations</button>
+</div>
+<hr>
+<div class="flex-container-horizontal">
+	<button class="menu_button" onclick="mainMenu();">Main menu</button>
+	<button class="menu_button" onclick="logout();">Logout</button>
+</div>
+<script type="text/javascript">function logout() {
+	window.location.href = "/security/login";
+}</script>
+<script type="text/javascript">function mainMenu() {
+	window.location.href = '/index';
+}</script>
+<script type="text/javascript">function users() {
+	window.location.href = '/admin/user';
+}
+
+function tasks() {
+	window.location.href = '/admin/task';
+}
+
+function timesheets() {
+	window.location.href = '/admin/timesheet';
+}
+
+function completedTasks() {
+	window.location.href = '/admin/completed_task';
+}
+
+function db() {
+	window.location.href = '/admin/db';
+}</script>
+<script type="text/javascript">function showFlashMessage(message) {
+	$("#flash-message").text(message);
+	window.setTimeout(hideFlashMessage, 5000);
+	$("#flash-message").css("display", "block");
+}
+
+function hideFlashMessage() {
+	$("#flash-message").text("");
+	$("#flash-message").css("display", "none");
+}
+
+function authenticationTimeout() {
+	$.get('/security/ping')
+		.done(function () {
+			//still authenticated
+		})
+		.fail(function () {
+			window.location.assign("/security/login");
+		});
+	window.setTimeout(authenticationTimeout, 185000);
+}
+
+$(document).ready(function () {
+	window.setTimeout(authenticationTimeout, 185000);
+});</script>
+</body>
+</html>

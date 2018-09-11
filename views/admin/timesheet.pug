@@ -1,0 +1,65 @@
+extends ../layout
+
+block content
+	div Timesheets
+	hr
+	div(class='flex-container-horizontal')
+		label(for='select_worker') Select worker
+		select(id='select_worker')
+			each worker in workers
+				option(value=worker.ID) #{worker.Name}
+		label(for='start_date') From
+		input(type='date' id='start_date')
+		label(for='end_date') to
+		input(type='date' id='end_date')
+		button(onclick='displayTimesheet()') Display timesheet
+	table(id='timesheet', style='border-style: solid; border-width: 1px;')
+		th
+			td Date
+			td Person
+			td Start time
+			td End time
+			td Breaks
+			td Time worked
+			td Hours worked
+	div(class='flex-container-horizontal')
+		button(onclick='csv();', class='menu_button') Download as CSV
+	hr
+	include ../includes/nav
+	script(type='text/javascript').
+		$(document).ready(function () {
+			$("#timesheet").css("display", "none");
+		});
+
+		function displayTimesheet() {
+			$.get('/admin/timesheet/worker/' + $('#select_worker').val(), {
+				FromDate: $('#start_date').val(),
+				ToDate: $('#end_date').val()
+			})
+				.done(function (data) {
+					$("#timesheet").css('display', 'block');
+					$("#timesheet").empty();
+
+					//header row
+					var row = $('<tr></tr>');
+					$("#timesheet").append(row);
+					$.each(data.HeaderRow, function (index, value) {
+						row.append('<th>' + value + '</th>');
+					});
+
+					//data rows
+					$.each(data.DataRows, function (index, value) {
+						var row = $('<tr></tr>');
+						$("#timesheet").append(row);
+						$.each(value, function (index, value) {
+							row.append('<td>' + value + '</td>');
+						});
+					});
+				});
+
+		}
+
+		function csv() {
+			window.location.href = '/admin/timesheet/csv';
+		}
+

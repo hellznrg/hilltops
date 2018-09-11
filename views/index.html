@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head><title></title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<script src="/scripts/jquery/jquery.js"></script>
+	<link rel="stylesheet" href="/scripts/chartist/chartist.css">
+	<script src="/scripts/chartist/chartist.js"></script>
+	<script src="/scripts/chartist-plugin-axistitle/chartist-plugin-axistitle.js"></script>
+	<script src="/scripts/chartist-plugin-legend/chartist-plugin-legend.js"></script>
+</head>
+<body>
+<div style="font-size: 4vmin;">Hilltops Egg Farm Operations</div>
+<div id="flash-message"></div>
+<div>Main menu</div>
+<div class="flex-container-vertical">
+	<div class="flex-container-horizontal"><p id="status"></p></div>
+	<div class="flex-container-horizontal">
+		<button class="menu_button" onclick="clockIn();">Clock-in</button>
+		<button class="menu_button" onclick="clockOut();">Clock-out</button>
+		<button class="menu_button" onclick="tasks();">Tasks</button>
+	</div>
+	<div class="flex-container-horizontal">
+		<button class="menu_button" onclick="changePin();">Change passcode</button>
+	</div>
+</div>
+<hr>
+<div class="flex-container-horizontal">
+	<button class="menu_button" onclick="mainMenu();">Main menu</button>
+	<button class="menu_button" onclick="logout();">Logout</button>
+</div>
+<script type="text/javascript">function logout() {
+	window.location.href = "/security/login";
+}</script>
+<script type="text/javascript">function mainMenu() {
+	window.location.href = '/index';
+}</script>
+<script type="text/javascript">updateStatus();
+
+function clockIn() {
+	$.post(
+		"/register/signin",
+		null,
+		function (data, textStatus, jqXhr) {
+			updateStatus();
+		}
+	);
+}
+
+function clockOut() {
+	$.post(
+		"/register/signout",
+		null,
+		function (data, textStatus, jqXhr) {
+			updateStatus();
+		}
+	);
+}
+
+function tasks() {
+	window.location.href = "/task";
+}
+
+function changePin() {
+	window.location.href = "/security/changePin";
+}
+
+function updateStatus() {
+	var status = $("#status");
+	$.get("/index/status", null, function (data, textStatus, jqXhr) {
+		status.text(data.status);
+	});
+}</script>
+<script type="text/javascript">function showFlashMessage(message) {
+	$("#flash-message").text(message);
+	window.setTimeout(hideFlashMessage, 5000);
+	$("#flash-message").css("display", "block");
+}
+
+function hideFlashMessage() {
+	$("#flash-message").text("");
+	$("#flash-message").css("display", "none");
+}
+
+function authenticationTimeout() {
+	$.get('/security/ping')
+		.done(function () {
+			//still authenticated
+		})
+		.fail(function () {
+			window.location.assign("/security/login");
+		});
+	window.setTimeout(authenticationTimeout, 185000);
+}
+
+$(document).ready(function () {
+	window.setTimeout(authenticationTimeout, 185000);
+});</script>
+</body>
+</html>

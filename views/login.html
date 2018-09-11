@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head><title></title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<script src="/scripts/jquery/jquery.js"></script>
+	<link rel="stylesheet" href="/scripts/chartist/chartist.css">
+	<script src="/scripts/chartist/chartist.js"></script>
+	<script src="/scripts/chartist-plugin-axistitle/chartist-plugin-axistitle.js"></script>
+	<script src="/scripts/chartist-plugin-legend/chartist-plugin-legend.js"></script>
+</head>
+<body>
+<div style="font-size: 4vmin;">Hilltops Egg Farm Operations</div>
+<div id="flash-message"></div>
+<div class="flex-container-horizontal">
+	<div class="flex-container-vertical login_right_side">
+		<div class="flex-container-vertical" style="font-size: 8vmin;">Login</div>
+		<div class="flex-container-vertical" id="status" style="font-size: 5vmin;">You can sign in now.</div>
+		<hr>
+		<div class="flex-container-vertical"><label class="login_input" for="worker_id">ID #</label><input
+			class="login_input" type="text" id="worker_id" onclick="activate_input(INPUT_FIELD_ID);" maxlength="8"></div>
+		<div class="flex-container-vertical"><label class="login_input" for="passcode">Passcode</label><input
+			class="login_input" type="password" id="passcode" onclick="activate_input(INPUT_FIELD_PASSCODE);" maxlength="8">
+		</div>
+	</div>
+	<div class="flex-container-vertical">
+		<div class="flex-container-horizontal">
+			<button class="keypad-button" type="button" onclick="keypad(1);">1</button>
+			<button class="keypad-button" type="button" onclick="keypad(2);">2</button>
+			<button class="keypad-button" type="button" onclick="keypad(3);">3</button>
+		</div>
+		<div class="flex-container-horizontal">
+			<button class="keypad-button" type="button" onclick="keypad(4);">4</button>
+			<button class="keypad-button" type="button" onclick="keypad(5);">5</button>
+			<button class="keypad-button" type="button" onclick="keypad(6);">6</button>
+		</div>
+		<div class="flex-container-horizontal">
+			<button class="keypad-button" type="button" onclick="keypad(7);">7</button>
+			<button class="keypad-button" type="button" onclick="keypad(8);">8</button>
+			<button class="keypad-button" type="button" onclick="keypad(9);">9</button>
+		</div>
+		<div class="flex-container-horizontal">
+			<button class="keypad-button" type="button" onclick="clear_input();">✘</button>
+			<button class="keypad-button" type="button" onclick="keypad(0);">0</button>
+			<button class="keypad-button" type="button" onclick="ok();">✔</button>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">const INPUT_FIELD_ID = 1;
+const INPUT_FIELD_PASSCODE = 2;
+
+var active_input = $("#worker_id");
+
+activate_input(INPUT_FIELD_ID);
+
+function keypad(button) {
+	active_input.val(active_input.val() + button);
+};
+
+function clear_input() {
+	$("#worker_id").val("");
+	$("#passcode").val("");
+	activate_input(INPUT_FIELD_ID);
+};
+
+function ok() {
+	var id = $("#worker_id").val();
+	var passcode = $("#passcode").val();
+	$.post({
+		url: "/security/login/" + id,
+		data: {Passcode: parseInt(passcode)},
+		success: function (data, textstatus, jqxhr) {
+			$("#status").text("Login successful.");
+			window.location.href = data.Redirect;
+		},
+		error: function (jqxhr, textstatus, errorthrown) {
+			$("#status").text("Login failed.");
+			activate_input(INPUT_FIELD_ID);
+		}
+	});
+	clear_input();
+};
+
+function activate_input(input_field) {
+	active_input.css("background-color", "");
+	switch (input_field) {
+		case INPUT_FIELD_ID:
+			active_input = $("#worker_id");
+			break;
+		case INPUT_FIELD_PASSCODE:
+			active_input = $("#passcode");
+			break;
+	}
+	active_input.css("background-color", "#FFFF00");
+}</script>
+<script type="text/javascript">function showFlashMessage(message) {
+	$("#flash-message").text(message);
+	window.setTimeout(hideFlashMessage, 5000);
+	$("#flash-message").css("display", "block");
+}
+
+function hideFlashMessage() {
+	$("#flash-message").text("");
+	$("#flash-message").css("display", "none");
+}
+
+function authenticationTimeout() {
+	$.get('/security/ping')
+		.done(function () {
+			//still authenticated
+		})
+		.fail(function () {
+			window.location.assign("/security/login");
+		});
+	window.setTimeout(authenticationTimeout, 185000);
+}
+
+$(document).ready(function () {
+	window.setTimeout(authenticationTimeout, 185000);
+});</script>
+</body>
+</html>

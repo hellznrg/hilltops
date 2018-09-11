@@ -1,0 +1,336 @@
+extends ../layout
+
+block content
+	div Scheduled tasks
+	hr
+	div(class='flex-container-vertical')
+
+		//- add task working
+		div(class='flex-container-vertical')
+			h2 Add task
+			div(class='flex-container-vertical')
+				div(class='flex-container-horizontal')
+					label(for='add_task_name') Name
+					input(type='text', id='add_task_name')
+				div(class='flex-container-horizontal')
+					button(onclick='addTask();') Add task
+					span(id='add_task_result')
+		hr
+		div(class='flex-container-vertical')
+			h2 Edit task
+			div(class='flex-container-horizontal')
+				label(for='edit_task_select') Select task
+				select(id='edit_task_select')
+					each task in tasks
+						option(value=task.id) #{task.Name}
+				button(onclick='editTask()') Edit selected task
+			div(class='flex-container-horizontal', id='edit_task_edit_panel')
+
+				//- edit task working 
+				div(class='flex-container-vertical', style='border-style: solid;')
+					div(class='flex-container-horizontal')
+						label(for='edit_task_id') Task ID
+						input(type='text', id='edit_task_id', readonly)
+					div(class='flex-container-horizontal')
+						label(for='edit_task_name') Name
+						input(type='text', id='edit_task_name')
+					div(class='flex-container-horizontal')
+						button(onclick='editTaskSaveChanges();') Save changes
+						button(onclick='editTaskCancelChanges();') Cancel
+						span(id='edit_task_result')
+				div(class='flex-container-vertical', style='border-style: solid;')
+
+					//- add data field working
+					div(class='flex-container-vertical')
+						h3 Add task field
+						div(class='flex-container-horizontal')
+							label(for='add_taskfield_name') Name
+							input(type='text', id='add_taskfield_name')
+						div(class='flex-container-horizontal')
+							label(for='add_taskfield_datatype') Data type
+							select(id='add_taskfield_datatype')
+								option STRING
+								option NUMBER
+						div(class='flex-container-horizontal')
+							button(onclick='addTaskField();') Add task field
+							span(id='add_taskfield_result')
+
+					//- remove data field working
+					div(class='flex-container-vertical')
+						h3 Remove task field
+						div(class='flex-container-horizontal')
+							label(for='remove_taskfield_select') Select data field
+							select(id='remove_taskfield_select')
+							label(for='remove_taskfield_confirm') Confirm
+							input(type='checkbox', id='remove_taskfield_confirm')
+							button(onclick='removeTaskField()') Remove selected data field
+							span(id='remove_taskfield_result')
+				div(class='flex-container-vertical', style='border-style: solid;')
+					h3 Schedule task
+
+					//- schedule task working
+					div(class='flex-container-horizontal')
+						div(class='flex-container-horizontal')
+							label(for='scheduleTask_repeatEvery') Repeat task every
+							input(type='text', id='scheduleTask_repeatEvery')
+							select(id='scheduleTask_repeatUnits')
+								option(value='HOUR') HOUR(S)
+								option(value='DAY', selected) DAY(S)
+						div(class='flex-container-horizontal')
+							button(onclick='scheduleTask();') Schedule task
+							span(id='scheduleTask_result')
+
+					//- remove scheduled task working
+					h3 Remove scheduled task
+					div(class='flex-container-horizontal')
+						label(for='remove_scheduledTask_select') Select scheduled task
+						select(id='remove_scheduledTask_select')
+						label(for='remove_scheduledTask_confirm') Confirm
+						input(type='checkbox', id='remove_scheduledTask_confirm')
+						button(onclick='removeScheduledTask()') Remove scheduled task 
+						span(id='remove_scheduledTask_result')
+				div(class='flex-container-vertical', style='border-style: solid;')
+					h3 Assign task
+
+					//- assign task
+					div(class='flex-container-horizontal')
+						div(class='flex-container-horizontal')
+							label(for='assignTask_description') Description
+							input(type='text', id='assignTask_description')
+						div(class='flex-container-horizontal')
+							label(for='assignTask_person') Select person
+							select(id='assignTask_person')
+						div(class='flex-container-horizontal')
+							button(onclick='assignTask();') Assign task
+							span(id='assignTask_result')
+
+					//- remove assignation of task
+					h3 Unassign task
+					div(class='flex-container-horizontal')
+						label(for='unassignTask_select') Select assignment
+						select(id='unassignTask_select')
+						label(for='unassignTask_confirm') Confirm
+						input(type='checkbox', id='unassignTask_confirm')
+						button(onclick='unassignTask()') Unassign task 
+						span(id='unassignTask_result')
+		hr
+
+		//- remove task working
+		div(class='flex-container-vertical')
+			h2 Remove task
+			div(class='flex-container-horizontal')
+				label(for='remove_task_select') Select task
+				select(id='remove_task_select')
+					each task in tasks
+						option(value=task.id) #{task.Name}
+				label(for='remove_confirm') Confirm
+				input(type='checkbox', id='remove_confirm')
+				button(onclick='removeTask()') Remove selected task
+				span(id='remove_task_result')
+	hr
+	include ../includes/nav
+	script(type='text/javascript').
+		$(document).ready(function () {
+			$("#edit_task_edit_panel").css("display", "none");
+		});
+
+		function editTaskCancelChanges() {
+			$("#edit_task_edit_panel").css("display", "none");
+		}
+
+		function addTask() {
+			var name = $("#add_task_name").val();
+
+			$.ajax({
+				type: "POST",
+				url: '/admin/task/add',
+				data: {Name: name},
+			}).done(function (data) {
+				$("#add_task_result").text("Success");
+				location.reload();
+			}).fail(function (error) {
+				$("#add_task_result").text("An error occurred. Try logout and login again. " + JSON.stringify(error));
+			});
+		}
+
+		function editTask() {
+			var id = $("#edit_task_select").val();
+			$.ajax({
+				method: "GET",
+				url: '/admin/task/' + id,
+			}).done(function (data) {
+				$("#edit_task_id").val(data.id);
+				$("#edit_task_name").val(data.Name);
+
+				var s = $("#remove_taskfield_select");
+				s.empty();
+				for (var taskfield of data.TaskDataFields) {
+					s.append("<option value='" + taskfield.id + "'>" + taskfield.Name + " (" + taskfield.DataType + ")" + "</option>");
+				}
+
+				s = $("#remove_scheduledTask_select");
+				s.empty();
+				for (var schedule of data.TaskSchedules) {
+					s.append("<option value='" + schedule.id + "'>Repeat every " + schedule.RepeatEvery + " " + schedule.RepeatUnits + "</option>");
+				}
+
+				s = $("#unassignTask_select");
+				s.empty();
+				for (var a of data.TaskAssignments) {
+					s.append("<option value='" + a.id + "'>" + a.Person.Name + "</option>");
+				}
+
+				s = $("#assignTask_person");
+				s.empty();
+				for (var p of data.Persons) {
+					s.append("<option value='" + p.ID + "'>" + p.Name + "</option>");
+				}
+
+				$("#remove_taskfield_confirm").prop("checked", false);
+				$("#remove_confirm").prop("checked", false);
+				$("#remove_scheduledTask_confirm").prop("checked", false);
+				$("#unassignTask_confirm").prop("checked", false);
+			}).fail(function () {
+
+			});
+			$("#edit_task_edit_panel").css("display", "block");
+		}
+
+		function editTaskSaveChanges() {
+			var id = $("#edit_task_id").val();
+			var name = $("#edit_task_name").val();
+
+			$.ajax({
+				type: "PUT",
+				url: '/admin/task/edit/' + id,
+				data: {id: id, Name: name},
+			}).done(function (data) {
+				$("#edit_task_result").text("Success");
+				editTask();
+			}).fail(function () {
+				$("#edit_task_result").text("Failed");
+			}).always(function () {
+				$("#edit_user_id").val("");
+				$("#edit_user_name").val("");
+			});
+		}
+
+		function removeTask() {
+			if ($("#remove_confirm").prop("checked") == true) {
+				$.ajax({
+					type: "DELETE",
+					url: '/admin/task/remove/' + $("#remove_task_select").val(),
+				}).done(function () {
+					$("#remove_task_result").text("Success");
+					location.reload();
+				}).fail(function () {
+					$("#remove_task_result").text("Failed");
+				});
+			}
+		}
+
+		function addTaskField() {
+			var task_id = $("#edit_task_id").val();
+			var task_field_name = $("#add_taskfield_name").val();
+			var task_field_datatype = $("#add_taskfield_datatype").val();
+			showFlashMessage(task_field_datatype);
+			$.ajax({
+				type: "POST",
+				url: '/admin/task/' + task_id + '/addDataField',
+				data: {TaskId: task_id, TaskDataFieldName: task_field_name, TaskDataFieldType: task_field_datatype},
+			}).done(function (data) {
+				$("#add_taskfield_result").text("Success");
+				editTask();
+			}).fail(function () {
+				$("#add_taskfield_result").text("Failed");
+			}).always(function () {
+				$("#add_taskfield_name").val("");
+			});
+		}
+
+		function removeTaskField() {
+			if ($("#remove_taskfield_confirm").prop("checked") == true) {
+				var task_id = $("#edit_task_id").val();
+				var task_field_id = $("#remove_taskfield_select").val();
+
+				$.ajax({
+					type: "DELETE",
+					url: '/admin/task/' + task_id + '/dataField/' + task_field_id + '/remove',
+				}).done(function () {
+					$("#remove_taskfield_result").text("Success");
+					editTask();
+				}).fail(function () {
+					$("#remove_taskfield_result").text("Failed");
+				});
+			}
+		}
+
+		function scheduleTask() {
+			var task_id = $("#edit_task_id").val();
+			var repeatEvery = $("#scheduleTask_repeatEvery").val();
+			var repeatUnits = $("#scheduleTask_repeatUnits").val();
+
+			$.ajax({
+				type: "POST",
+				url: '/admin/task/' + task_id + '/schedule/add',
+				data: {TaskId: task_id, RepeatEvery: repeatEvery, RepeatUnits: repeatUnits},
+			}).done(function (data) {
+				$("#scheduleTask_result").text("Success");
+				editTask();
+			}).fail(function () {
+				$("#scheduleTask_result").text("Failed");
+			}).always(function () {
+				$("#scheduleTask_result").val("");
+			});
+		}
+
+		function removeScheduledTask() {
+			if ($("#remove_scheduledTask_confirm").prop("checked") == true) {
+				var task_id = $("#edit_task_id").val();
+				var task_schedule_id = $("#remove_scheduledTask_select").val();
+
+				$.ajax({
+					type: "DELETE",
+					url: '/admin/task/' + task_id + '/schedule/' + task_schedule_id + '/remove',
+				}).done(function () {
+					$("#remove_scheduledTask_result").text("Success");
+					editTask();
+				}).fail(function () {
+					$("#remove_scheduledTask_result").text("Failed");
+				});
+			}
+		}
+
+		function assignTask() {
+			var task_id = $("#edit_task_id").val();
+			var person_id = $("#assignTask_person").val();
+			var description = $("#assignTask_description").val();
+
+			$.ajax({
+				type: "POST",
+				url: '/admin/task/' + task_id + '/assignment/add',
+				data: {TaskId: task_id, PersonId: person_id, Description: description},
+			}).done(function (data) {
+				$("#assignTask_result").text("Success");
+				editTask();
+			}).fail(function () {
+				$("#assignTask_result").text("Failed");
+			});
+		}
+
+		function unassignTask() {
+			if ($("#unassignTask_confirm").prop("checked") == true) {
+				var task_id = $("#edit_task_id").val();
+				var assignment_id = $("#unassignTask_select").val();
+
+				$.ajax({
+					type: "DELETE",
+					url: '/admin/task/' + task_id + '/assignment/' + assignment_id + '/remove',
+				}).done(function () {
+					$("#unassignTask_result").text("Success");
+					editTask();
+				}).fail(function () {
+					$("#unassignTask_result").text("Failed");
+				});
+			}
+		}

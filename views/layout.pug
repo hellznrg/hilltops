@@ -1,0 +1,44 @@
+doctype html
+html
+	head
+		title= title
+		link(rel='stylesheet', href='/stylesheets/style.css')
+		script(src='/scripts/jquery/jquery.js')
+		link(rel="stylesheet", href="/scripts/chartist/chartist.css")
+		script(src="/scripts/chartist/chartist.js")
+		script(src="/scripts/chartist-plugin-axistitle/chartist-plugin-axistitle.js")
+		script(src="/scripts/chartist-plugin-legend/chartist-plugin-legend.js")
+		script(type="text/javascript", src="https://www.gstatic.com/charts/loader.js")
+		script(src="/scripts/moment/moment.js")
+		script(src="/scripts/moment-timezone/moment-timezone.js")
+	body
+		div(style='font-size: 4vmin;') Hilltops Egg Farm Operations
+		div(id='flash-message')
+		block content
+		script(type='text/javascript').
+
+			function showFlashMessage(message) {
+				$("#flash-message").text(message);
+				window.setTimeout(hideFlashMessage, 5000);
+				$("#flash-message").css("display", "block");
+			}
+
+			function hideFlashMessage() {
+				$("#flash-message").text("");
+				$("#flash-message").css("display", "none");
+			}
+
+			function authenticationTimeout() {
+				$.get('/security/ping')
+					.done(function () {
+						//still authenticated
+					})
+					.fail(function () {
+						window.location.assign("/security/login");
+					});
+				window.setTimeout(authenticationTimeout, 185000);
+			}
+
+			$(document).ready(function () {
+				window.setTimeout(authenticationTimeout, 185000);
+			});

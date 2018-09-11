@@ -1,0 +1,59 @@
+body {
+	padding: 10px;
+}
+
+a {
+	color: #00B7FF;
+}
+
+.flex-container-vertical {
+	display: flex;
+	flex-direction: column;
+}
+
+.flex-container-horizontal {
+	display: flex;
+	flex-direction: row;
+}
+
+.keypad-button {
+	width: 16vmin;
+	height: 16vmin;
+	font-size: 10vmin;
+}
+
+.login_input {
+	font-size: 8vmin;
+	font-family: monospace;
+	width: 40vmin;
+}
+
+.change_pin_input {
+	font-size: 6vmin;
+	font-family: monospace;
+	width: 35vmin;
+}
+
+.login_right_side {
+	width: 50vmin;
+	padding: 2vmin;
+}
+
+.with-border, .with-border table, .with-border tr, .with-border th, .with-border td {
+	border-width: 1px;
+	border-style: solid;
+}
+
+#timesheet td, #timesheet th {
+	border-style: solid;
+	border-width: 1px;
+}
+
+.menu_button {
+	width: 20vmin;
+	height: 16vmin;
+}
+
+.task-due {
+	background-color: pink;
+}

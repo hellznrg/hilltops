@@ -173,7 +173,6 @@ router.get('/', authentication.authenticate, async function (req, res, next) {
 		]
 	});
 	tasks = JSON.parse(JSON.stringify(tasks));
-	console.log(tasks);
 
 	for (var _t of tasks) {
 		var _q = `

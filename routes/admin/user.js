@@ -25,7 +25,6 @@ router.get('/:id', authentication.authenticateApi, function (req, res, next) {
 });
 
 router.post('/add', authentication.authenticateApi, function (req, res, next) {
-	console.log("create user", req.body);
 	Person.create({
 		Name: req.body.Name,
 		ID: req.body.ID,
@@ -49,7 +48,6 @@ router.post('/add', authentication.authenticateApi, function (req, res, next) {
 });
 
 router.put('/edit/:id', authentication.authenticateApi, function (req, res, next) {
-	console.log('req', req.body);
 	Person.findOne({
 		where: {ID: req.params.id}
 	}).then(person => {

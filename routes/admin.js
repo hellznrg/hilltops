@@ -44,21 +44,16 @@ router.get('/timesheet/worker/:id', authentication.authenticateApi, async functi
 });
 
 router.get('/timesheet/csv', authentication.authenticate, async function (req, res, next) {
-	console.log('test', 'test');
 	var output = [TIMESHEET_HEADER_ROW];
 	var persons = await Person.findAll({
 		raw: true
 	});
-
-	console.log('persons', persons);
 
 	for (var cp of persons) {
 		output = output.concat(await getTimesheet(cp.ID, "", "", "csv"));
 	}
 
 	output = output.join('\n');
-
-	console.log('csv', output);
 
 	var readStream = new stream.PassThrough();
 	readStream.end(output);
@@ -98,11 +93,7 @@ async function getTimesheet(id, from_date, to_date, output_format = 'object') {
 		console.log("error", error);
 	}
 
-	console.log('min_date', min_date);
-	console.log('hello', max_date);
-
 	for (var cdate = min_date; cdate <= max_date; cdate.add(1, 'day')) {
-		console.log('cdate', cdate);
 		var registrations;
 		try {
 			registrations = await Registration.findAll({
@@ -118,8 +109,6 @@ async function getTimesheet(id, from_date, to_date, output_format = 'object') {
 		} catch (error) {
 			console.log("error", error);
 		}
-
-		console.log('registrations', registrations);
 
 		if (registrations.length > 0) {
 			var day_start = moment(registrations[0].TimeIn),
@@ -183,8 +172,6 @@ router.get('/db', authentication.authenticate, function (req, res, next) {
 
 //authentication.authenticate
 router.post('/db/reset', authentication.authenticateApi, async function (req, res, next) {
-	console.log(req.body);
-
 	if (req.body.clear_taskcompletions == "true") {
 		await TaskData.sync({force: true});
 		await TaskCompletion.sync({force: true});

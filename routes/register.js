@@ -23,7 +23,6 @@ router.post('/signin', authentication.authenticateApi, function (req, res, next)
 						}
 					}
 				}).then(registrations => {
-					console.log('registrations.length', registrations.length);
 					if (registrations.length > 0) {
 						res.status(403).send("You are already clocked in.");
 						return;

@@ -15,7 +15,6 @@ router.get("/", function (req, res, next) {
 
 router.get('/FlockDailyProduction', async function (req, res, next) {
 	let data = await getFullData2();
-	console.log(data);
 	let result = [];
 	result.push(["Date", "Flock 3", "Flock 4", "Flock 5"]);
 	for (_dx in data) {
@@ -860,7 +859,6 @@ router.get('/GenerateTestData', function (req, res, next) {
 		Active: true,
 		Admin: true
 	}).then(p => {
-		//console.log(p);
 		let promises = [];
 
 		for (d in data) {
@@ -881,14 +879,12 @@ module.exports = router;
 
 var importDay = function (p, dv) {
 	let cdate = new moment(dv[DATE], 'DD/MM/YYYY');
-	console.log(cdate);
 	if (cdate == null) return null;
 	return Registration.create({
 		TimeIn: new moment(cdate).add(8, 'hour'),
 		TimeOut: new moment(cdate).add(18, 'hour'),
 		PersonID: p.ID
 	}).then(r => {
-			//console.log(r);
 
 			if (dv[F1_CLEAN_EGGS] != null || dv[F1_DIRTY_EGGS] != null)
 				TaskCompletion.create({
@@ -908,7 +904,6 @@ var importDay = function (p, dv) {
 						TaskCompletionId: tc.id,
 						TaskDataFieldId: 33
 					}));
-					//console.log(tc);
 					return Promise.all(_p);
 				});
 
@@ -930,7 +925,6 @@ var importDay = function (p, dv) {
 						TaskCompletionId: tc.id,
 						TaskDataFieldId: 35
 					}));
-					//console.log(tc);
 					return Promise.all(_p);
 				});
 
@@ -952,7 +946,6 @@ var importDay = function (p, dv) {
 						TaskCompletionId: tc.id,
 						TaskDataFieldId: 37
 					}));
-					//console.log(tc);
 					return Promise.all(_p);
 				});
 
@@ -968,8 +961,6 @@ var importDay = function (p, dv) {
 						TaskCompletionId: tc.id,
 						TaskDataFieldId: 29
 					}));
-
-					//console.log(tc);
 					return Promise.all(_p);
 				});
 
@@ -986,7 +977,6 @@ var importDay = function (p, dv) {
 						TaskDataFieldId: 30
 					}));
 
-					//console.log(tc);
 					return Promise.all(_p);
 				});
 
@@ -1003,7 +993,6 @@ var importDay = function (p, dv) {
 						TaskDataFieldId: 31
 					}));
 
-					//console.log(tc);
 					return Promise.all(_p);
 				});
 
@@ -1020,7 +1009,6 @@ var importDay = function (p, dv) {
 						TaskDataFieldId: 39
 					}));
 
-					//console.log(tc);
 					return Promise.all(_p);
 				});
 

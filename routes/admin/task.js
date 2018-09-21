@@ -18,8 +18,6 @@ router.get('/', authentication.authenticate, async function (req, res, next) {
 		include: [TaskSchedule, TaskDataField, TaskAssignment]
 	});
 
-	console.log("tasks", JSON.stringify(tasks));
-
 	res.render('admin/task', {tasks: tasks, admin: req.session.admin});
 });
 
@@ -52,8 +50,6 @@ router.get('/:id', authentication.authenticateApi, async function (req, res, nex
 
 	task.Persons = persons;
 
-	console.log("task", JSON.stringify(task));
-
 	res.send(task);
 });
 
@@ -69,7 +65,6 @@ router.post('/add', authentication.authenticateApi, async function (req, res, ne
 });
 
 router.put('/edit/:id', authentication.authenticateApi, async function (req, res, next) {
-	console.log('req', req.body);
 	var task = await Task.findOne({
 		where: {ID: req.params.id}
 	});

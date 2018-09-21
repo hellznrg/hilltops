@@ -12,14 +12,12 @@ var stream = require('stream');
 
 router.get('/', authentication.authenticate, async function (req, res, next) {
 	var data = await getCompletedTasks(req.query.FromDate, req.query.ToDate);
-	console.log(data);
 	res.render("admin/completed_task", {CompletedTasks: data});
 });
 
 const CT_HEADER_ROW = ['Worker ID', 'Worker name', 'Job title', 'Task name', 'Date completed', 'Clock in', 'Completed at', 'Clock out', 'Data'];
 
 router.get('/csv', authentication.authenticate, async function (req, res, next) {
-	console.log('test', 'test');
 	var output = [CT_HEADER_ROW];
 
 	output = output.concat(await getCompletedTasks("", "", "csv"));

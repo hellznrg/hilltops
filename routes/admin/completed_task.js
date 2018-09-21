@@ -44,8 +44,8 @@ async function getCompletedTasks(from_date, to_date, output_format = 'object') {
 			raw: true,
 		});
 
-		min_date = new moment(from_date == "" ? result.EarliestTime : from_date).tz('Australia/Sydney').startOf('day');
-		max_date = new moment(to_date == "" ? result.LatestTime : to_date).tz('Australia/Sydney').startOf('day');
+		min_date = new moment(from_date == "" ? result.EarliestTime : from_date).startOf('day');
+		max_date = new moment(to_date == "" ? result.LatestTime : to_date).startOf('day');
 	} catch (error) {
 		console.log("error", error);
 	}
@@ -80,9 +80,9 @@ async function getCompletedTasks(from_date, to_date, output_format = 'object') {
 	for (let c of _result1) {
 		c.TaskData = [];
 		c.Date = moment(c.ClockIn).format("DD-MM-YYYY");
-		c.ClockIn = moment(c.ClockIn).tz('Australia/Sydney').format("HH:mm");
-		c.ClockOut = c.ClockOut == null ? null : moment(c.ClockOut).tz('Australia/Sydney').format("HH:mm");
-		c.CompletedAt = moment(c.CompletedAt).tz('Australia/Sydney').format("HH:mm");
+		c.ClockIn = moment(c.ClockIn).format("HH:mm");
+		c.ClockOut = c.ClockOut == null ? null : moment(c.ClockOut).format("HH:mm");
+		c.CompletedAt = moment(c.CompletedAt).format("HH:mm");
 		result[c.TaskCompletionId] = c;
 	}
 

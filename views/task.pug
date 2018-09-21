@@ -58,16 +58,15 @@ block content
 		});
 
 
-		async
 		function recordTaskCompletion(task_id) {
 			var fields = $("#task_" + task_id + " > tr > td > input");
 			var f = {};
-			await
-			fields.each(function () {
-				var id = $(this).attr('dfId');
-				var value = $(this).val();
+
+			for (field of fields) {
+				var id = $(field).attr('dfId');
+				var value = $(field).val();
 				f[id] = value;
-			});
+			}
 
 			$.ajax({
 				type: "POST",

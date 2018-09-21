@@ -40,15 +40,20 @@ router.post('/:task_id/complete', authentication.authenticateApi, async function
 	}
 
 	var task_data = req.body.data;
+	let _empty = 1;
 	for (let td in task_data) {
-		if (task_data[td] == "") {
-			res.status(400).send("Some values were not entered correctly. Please try again.");
-			return;
+		if (task_data[td] != "") {
+			_empty = 0;
 		}
 		if (tdf[td].DataType == "NUMBER" && isNaN(task_data[td])) {
 			res.status(400).send('Expected number but "' + task_data[td] + '" was entered.');
 			return;
 		}
+	}
+
+	if (_empty) {
+		res.status(400).send('No data was entered. At least one of the fields should be entered.');
+		return;
 	}
 
 	var reg = await Registration.findOne({
@@ -69,17 +74,19 @@ router.post('/:task_id/complete', authentication.authenticateApi, async function
 
 	var tc = await TaskCompletion.create({
 		RegistrationId: reg.id,
-		CompletedAt: moment().tz('Australia/Sydney'),
+		CompletedAt: moment(),
 		TaskId: req.params.task_id
 	});
 
 	task_data = req.body.data;
 	for (let td in task_data) {
-		TaskData.create({
-			TaskCompletionId: tc.id,
-			TaskDataFieldId: td,
-			Value: task_data[td]
-		});
+		if (task_data[td] != "") {
+			TaskData.create({
+				TaskCompletionId: tc.id,
+				TaskDataFieldId: td,
+				Value: task_data[td]
+			});
+		}
 	}
 
 	res.send('Task successfully completed');
@@ -87,7 +94,7 @@ router.post('/:task_id/complete', authentication.authenticateApi, async function
 
 router.get('/', authentication.authenticate, async function (req, res, next) {
 
-	var today = new moment().tz('Australia/Sydney').startOf('day');
+	var today = new moment().startOf('day');
 	var tomorrow = new moment(today).add(1, 'day');
 
 	var registrations = await Registration.findAll({
@@ -141,8 +148,11 @@ router.get('/', authentication.authenticate, async function (req, res, next) {
 		}, Task],
 		where: {
 			RegistrationId: {[db.Op.in]: reg_ids}
-		}
-	});
+		},
+		order: [
+			[TaskData, TaskDataField, 'DisplayOrder', 'ASC']
+		]
+	}).catch(e => console.log(e));
 
 	var tc_ids = [];
 	for (var tc of task_completions) {
@@ -157,34 +167,37 @@ router.get('/', authentication.authenticate, async function (req, res, next) {
 				[db.Op.notIn]: tc_ids,
 			}
 		},
-		order: [['Name', 'ASC']]
+		order: [
+			['Name', 'ASC'],
+			[TaskDataField, 'DisplayOrder', 'ASC']
+		]
 	});
 	tasks = JSON.parse(JSON.stringify(tasks));
 	console.log(tasks);
 
 	for (var _t of tasks) {
 		var _q = `
-			select t.id as TaskId, max(tc.CompletedAt) as WhenLastCompleted, 
-			min(ts.RepeatEvery) as RepeatEvery
-			from Tasks t 
-			inner join TaskSchedules ts on t.id = ts.TaskId
-			inner join TaskAssignments ta on t.id = ta.TaskId
-			left join TaskCompletions tc on t.id = tc.TaskId
-			left join Registrations r on tc.RegistrationId = r.id
-			where t.id = '` + _t.id + `'
-			group by t.id  
+select t."id" as TaskId, max(tc."CompletedAt") as WhenLastCompleted, 
+			min(ts."RepeatEvery") as RepeatEvery
+			from "Tasks" t 
+			inner join "TaskSchedules" ts on t.id = ts."TaskId"
+			inner join "TaskAssignments" ta on t.id = ta."TaskId"
+			left join "TaskCompletions" tc on t.id = tc."TaskId"
+			left join "Registrations" r on tc."RegistrationId" = r."id"
+			where t."id" = '` + _t.id + `'
+			group by t."id"
 		`;
 
 		var _result = await db.query(_q, {type: db.QueryTypes.SELECT});
 		_result = JSON.parse(JSON.stringify(_result))[0];
 
 		if (_result.WhenLastCompleted == null) {
-			_result.DueOn = moment().tz('Australia/Sydney').startOf('day');
+			_result.DueOn = moment().startOf('day');
 			_result.Due = true;
 		} else {
-			_result.WhenLastCompleted = moment(_result.WhenLastCompleted).tz('Australia/Sydney').startOf('day');
+			_result.WhenLastCompleted = moment(_result.WhenLastCompleted).startOf('day');
 			_result.DueOn = moment(_result.WhenLastCompleted).add(_result.RepeatEvery, 'days');
-			if (_result.DueOn <= moment().tz('Australia/Sydney').startOf('day')) {
+			if (_result.DueOn <= moment().startOf('day')) {
 				_result.Due = true;
 			} else {
 				_result.Due = false;

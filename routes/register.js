@@ -29,7 +29,7 @@ router.post('/signin', authentication.authenticateApi, function (req, res, next)
 						return;
 					} else {
 						Registration.create({
-							TimeIn: moment().tz('Australia/Sydney'),
+							TimeIn: moment(),
 							PersonID: person.ID
 						});
 						res.send(person.Name + ' successfully clocked in.');
@@ -60,7 +60,7 @@ router.post('/signout', authentication.authenticateApi, function (req, res, next
 						return;
 					}
 					var registration = registrations[0];
-					registration.TimeOut = moment().tz('Australia/Sydney');
+					registration.TimeOut = moment();
 					registration.save();
 					res.send(person.Name + ' successfully clocked out.');
 				});

@@ -92,8 +92,8 @@ async function getTimesheet(id, from_date, to_date, output_format = 'object') {
 			}
 		});
 
-		min_date = new moment(from_date == "" ? result.EarliestTime : from_date).tz('Australia/Sydney').startOf('day');
-		max_date = new moment(to_date == "" ? result.LatestTime : to_date).tz('Australia/Sydney').startOf('day');
+		min_date = new moment(from_date == "" ? result.EarliestTime : from_date).startOf('day');
+		max_date = new moment(to_date == "" ? result.LatestTime : to_date).startOf('day');
 	} catch (error) {
 		console.log("error", error);
 	}
@@ -122,13 +122,13 @@ async function getTimesheet(id, from_date, to_date, output_format = 'object') {
 		console.log('registrations', registrations);
 
 		if (registrations.length > 0) {
-			var day_start = moment(registrations[0].TimeIn).tz('Australia/Sydney'),
-				day_end = moment(registrations[0].TimeIn).tz('Australia/Sydney'),
+			var day_start = moment(registrations[0].TimeIn),
+				day_end = moment(registrations[0].TimeIn),
 				work_time = moment.duration(0, 'seconds'),
 				break_time = moment.duration(0, 'seconds');
 			for (var r of registrations) {
-				r.TimeIn = moment(r.TimeIn).tz('Australia/Sydney');
-				r.TimeOut = (r.TimeOut == null ? moment() : moment(r.TimeOut)).tz('Australia/Sydney');
+				r.TimeIn = moment(r.TimeIn);
+				r.TimeOut = (r.TimeOut == null ? moment() : moment(r.TimeOut));
 				if (day_start > r.TimeIn) day_start = r.TimeIn;
 				if (day_end < r.TimeOut) day_end = r.TimeOut;
 				work_time = work_time + (r.TimeOut - r.TimeIn);

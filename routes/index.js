@@ -43,10 +43,10 @@ router.get('/index/status', authentication.authenticateApi, function (req, res, 
 					}
 					var r = registrations[0];
 					if (r.TimeOut == null) {
-						res.send({status: person.Name + ", you clocked in at " + moment(r.TimeIn).format("YYYY-MMM-DD HH:mm:ss") + "."});
+						res.send({name: person.Name, status: "clocked in", at: moment(r.TimeIn)});
 						return;
 					} else {
-						res.send({status: person.Name + ', you clocked out at ' + moment(r.TimeOut).format("YYYY-MMM-DD HH:mm:ss") + "."});
+						res.send({name: person.Name, status: "clocked out", at: moment(r.TimeOut)});
 						return;
 					}
 				});

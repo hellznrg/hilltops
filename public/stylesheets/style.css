@@ -57,3 +57,11 @@ a {
 .task-due {
 	background-color: pink;
 }
+
+.task-not-due {
+	background-color: lightgreen;
+}
+
+#flash-message {
+	background-color: pink;
+}

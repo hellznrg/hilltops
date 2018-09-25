@@ -30,6 +30,7 @@ router.delete('/task_completion/:tc_id/remove', authentication.authenticateApi, 
 });
 
 router.post('/:task_id/complete', authentication.authenticateApi, async function (req, res, next) {
+	let completion_date = req.body.data['TaskCompletionDate'];
 	var _tdf = await TaskDataField.findAll({
 		raw: true
 	});
@@ -40,6 +41,7 @@ router.post('/:task_id/complete', authentication.authenticateApi, async function
 	}
 
 	var task_data = req.body.data;
+	delete task_data['TaskCompletionDate'];
 	let _empty = 1;
 	for (let td in task_data) {
 		if (task_data[td] != "") {
@@ -74,11 +76,10 @@ router.post('/:task_id/complete', authentication.authenticateApi, async function
 
 	var tc = await TaskCompletion.create({
 		RegistrationId: reg.id,
-		CompletedAt: moment(),
+		CompletedAt: moment(completion_date),
 		TaskId: req.params.task_id
 	});
 
-	task_data = req.body.data;
 	for (let td in task_data) {
 		if (task_data[td] != "") {
 			TaskData.create({
@@ -164,7 +165,7 @@ router.get('/', authentication.authenticate, async function (req, res, next) {
 		where: {
 			id: {
 				[db.Op.in]: ts_ids,
-				[db.Op.notIn]: tc_ids,
+				//[db.Op.notIn]: tc_ids,
 			}
 		},
 		order: [
@@ -174,27 +175,35 @@ router.get('/', authentication.authenticate, async function (req, res, next) {
 	});
 	tasks = JSON.parse(JSON.stringify(tasks));
 
-	for (var _t of tasks) {
+	let results = [];
+	for (let _t = 0; _t < tasks.length; _t++) {
 		var _q = `
-select t."id" as TaskId, max(tc."CompletedAt") as WhenLastCompleted, 
-			min(ts."RepeatEvery") as RepeatEvery
+select t."id" as "TaskId", max(tc."CompletedAt") as "WhenLastCompleted", 
+			min(ts."RepeatEvery") as "RepeatEvery"
 			from "Tasks" t 
 			inner join "TaskSchedules" ts on t.id = ts."TaskId"
 			inner join "TaskAssignments" ta on t.id = ta."TaskId"
 			left join "TaskCompletions" tc on t.id = tc."TaskId"
 			left join "Registrations" r on tc."RegistrationId" = r."id"
-			where t."id" = '` + _t.id + `'
+			where t."id" = '` + tasks[_t].id + `'
 			group by t."id"
 		`;
 
-		var _result = await db.query(_q, {type: db.QueryTypes.SELECT});
+		results.push(db.query(_q, {type: db.QueryTypes.SELECT}));
+	}
+
+	results = await Promise.all(results);
+
+	for (let _tc = 0; _tc < tasks.length; _tc++) {
+		let _result = results[_tc];
+		let _t = tasks[_tc];
 		_result = JSON.parse(JSON.stringify(_result))[0];
 
 		if (_result.WhenLastCompleted == null) {
-			_result.DueOn = moment().startOf('day');
+			_result.DueOn = moment();
 			_result.Due = true;
 		} else {
-			_result.WhenLastCompleted = moment(_result.WhenLastCompleted).startOf('day');
+			_result.WhenLastCompleted = moment(_result.WhenLastCompleted);
 			_result.DueOn = moment(_result.WhenLastCompleted).add(_result.RepeatEvery, 'days');
 			if (_result.DueOn <= moment().startOf('day')) {
 				_result.Due = true;

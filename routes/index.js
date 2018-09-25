@@ -38,7 +38,7 @@ router.get('/index/status', authentication.authenticateApi, function (req, res, 
 					limit: 1
 				}).then(registrations => {
 					if (registrations.length == 0) {
-						res.send({status: person.Name + ', you are currently clocked out.'});
+						res.send({name: person.Name, status: 'clocked out', at: null});
 						return;
 					}
 					var r = registrations[0];

@@ -4,30 +4,33 @@ block content
 	div Scheduled tasks
 	hr
 	div(class='flex-container-horizontal')
-		div(style='overflow: scroll; height: 64vmin; width: 50vw;')
-			table(class='with-border')
-				for task in tasks
-					tbody(class=(task.Due ? 'task-due' : 'task-not-due'), style='display: block; border: 2px solid black;', id='task_' + task.id)
-						tr
-							th Task
-							td #{task.Name}
-						tr
-							th Repeat
-							td #{task.RepeatEvery} days
-						tr
-							th Last done
-							td #{task.WhenLastCompleted}
-						tr
-							th Due on
-							td #{task.DueOn}
-						each df in task.TaskDataFields
+		div(class='flex-container-vertical')
+			div Tasks completed on:
+				input(type='date', id='completion_date')
+			div(style='overflow: scroll; height: 64vmin; width: 50vw;')
+				table(class='with-border')
+					for task in tasks
+						tbody(class=(task.Due ? 'task-due' : 'task-not-due'), style='display: block; border: 2px solid black;', id='task_' + task.id)
 							tr
-								th #{df.Name}
-								td
-									input(type='text', id='datafield', dfId=df.id)
-						tr
-							td(colspan='2')
-								button(onclick='recordTaskCompletion(' + task.id + ')') Record task completion
+								th Task
+								td #{task.Name}
+							tr
+								th Repeat
+								td #{task.RepeatEvery} days
+							tr
+								th Last done
+								td #{task.WhenLastCompleted}
+							tr
+								th Due on
+								td #{task.DueOn}
+							each df in task.TaskDataFields
+								tr
+									th #{df.Name}
+									td
+										input(type='text', id='datafield', dfId=df.id)
+							tr
+								td(colspan='2')
+									button(onclick='recordTaskCompletion(' + task.id + ')') Record task completion
 		include includes/keypad.pug
 	hr
 	div Tasks completed today
@@ -55,12 +58,15 @@ block content
 					focus_input.css("background-color", "#FFFF00");
 				});
 			});
+
+			$("#completion_date").val(moment().format('YYYY-MM-DD'));
 		});
 
 
 		function recordTaskCompletion(task_id) {
 			var fields = $("#task_" + task_id + " > tr > td > input");
 			var f = {};
+			f["TaskCompletionDate"] = $("#completion_date").val();
 
 			for (field of fields) {
 				var id = $(field).attr('dfId');

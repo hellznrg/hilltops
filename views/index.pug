@@ -47,6 +47,6 @@ block content
 		function updateStatus() {
 			var status = $("#status");
 			$.get("/index/status", null, function (data, textStatus, jqXhr) {
-				status.text(data.name + ", you are " + data.status + " at " + moment(data.at).local().format('llll'));
+				status.text(data.name + ", you are " + data.status + " at " + (data.at == null ? '<never clocked in>' : moment(data.at).local().format('llll')));
 			});
 		}
